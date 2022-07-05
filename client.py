@@ -1,4 +1,3 @@
-from cmath import isnan
 from http import client
 from iiot_device import Sensor
 import json
