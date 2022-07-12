@@ -1,57 +1,27 @@
-from http import client
-from iiot_device import Sensor
-import json
+import serial
+import requests
 import time
 
+ser = serial.Serial('COM4', 9600, timeout=1)
 
-# Creación de un objeto de la clase HTTPConnection
-_conn = client.HTTPConnection(host='localhost', port=5000)
+h = {'Content-type': 'application/json'}  
 
-# Creación de un objeto de la clase Sensor
-s = Sensor()
+while True:    
 
-# Pa'a formar el JSON que se va al servidor
-h = {'Content-type': 'application/json'}
-
-while True:
-
-    data = {
-        'id' : 1,
-        'name' : 'Temp_Sensor',
-        'value' : s.get_random_number()
-    }
-
-    json_data = json.dumps(data)
-
-    # Enviar los datos al servidor
-    _conn.request('POST', '/devices', json_data, headers=h)
-    _conn.close()
-
+    raw_data = ser.readline()
+    if raw_data:
     
-    val = data['value']
-
-    if type(val) == int:
-        print(f"It is a number {val}" )
-        if val < 15:
-            print(val, "es menor a 15")
-        else: 
-            print(val, "es igual o mayor a 15") 
-
-    elif type(val) == float:
-        print(f"It is not an int {val}" )
-        val = int(val)
-        print(f"Now it is {val}" )
-    else:
-        print(f"It is not a number {val}")
-        if (val == True):
-            val = 1
-            print(f"Now it is {val}")
+        sen=str(raw_data).split("'")
+        sen = sen[1].split('\\')
+        s = sen[0]
+        data = {
+            'stop_id': 1,
+            'bus_name': 'Dale Up',
+            'bus_id': s
+        }
+        req = requests.post("https://track-bus-nevsoft.herokuapp.com/signals", json=data)
         
-        elif (val == False):
-            val = 0
-            print(f"Now it is {val}")
-
-        else:
-            pass
-
-    time.sleep(.5)
+        value = data['bus_id']
+        print(f"{req.text} tarjeta: {value}") 
+        
+    time.sleep(1)
