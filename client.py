@@ -8,8 +8,7 @@ get = requests.get("https://track-bus-nevsoft.herokuapp.com/routes", headers={
 })
 
 routes = get.json()
-#print(route)
-#print(routes[0])
+
 while True:    
 
     raw_data = ser.readline()
